@@ -9,26 +9,72 @@ import logger from "../config/logger";
 import { Instagram_cookiesExist, loadCookies, saveCookies } from "../utils";
 import { runAgent } from "../Agent";
 import { getInstagramCommentSchema } from "../Agent/schema";
+import fs from 'fs/promises';
 
 // Add stealth plugin to puppeteer
 puppeteer.use(StealthPlugin());
 puppeteer.use(
-    AdblockerPlugin({
-        // Optionally enable Cooperative Mode for several request interceptors
-        interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
-    })
+  AdblockerPlugin({
+    // Optionally enable Cooperative Mode for several request interceptors
+    interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY,
+  })
 );
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// --- Follow Limit Logic ---
+const FOLLOW_LIMIT_FILE = "./data/follow_limit.json";
+const DAILY_FOLLOW_LIMIT = parseInt(process.env.DAILY_FOLLOW_LIMIT || "50", 10);
+
+interface FollowLimitData {
+    count: number;
+    timestamp: number;
+}
+
+async function getFollowLimitData(): Promise<FollowLimitData> {
+  try {
+    const data = await fs.readFile(FOLLOW_LIMIT_FILE, "utf-8");
+    return JSON.parse(data);
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      // File doesn't exist, return default values
+      return { count: 0, timestamp: Date.now() };
+    }
+    logger.error(`Error reading follow limit data: ${error}`);
+    return {count: 0, timestamp: Date.now()}; //Return default, so it does not crash
+  }
+}
+
+async function updateFollowLimitData(data: FollowLimitData): Promise<void> {
+    try {
+        await fs.writeFile(FOLLOW_LIMIT_FILE, JSON.stringify(data, null, 2), "utf-8");
+    } catch(error) {
+        logger.error(`Error writing follow limit data: ${error}`);
+    }
+}
+
+async function resetDailyFollowCountIfNeeded() {
+    const { count, timestamp } = await getFollowLimitData();
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
+
+    if (now - timestamp > oneDay) {
+        // Reset the count and update the timestamp
+        await updateFollowLimitData({ count: 0, timestamp: now });
+        logger.info("Daily follow count reset.");
+    }
+}
+
+// --- End Follow Limit Logic ---
 
 async function runInstagram() {
-    const server = new Server({ port: 8000 });
-    await server.listen();
-    const proxyUrl = `http://localhost:8000`;
-    const browser = await puppeteer.launch({
-        headless: false,
-        args: [`--proxy-server=${proxyUrl}`],
-    });
+  const server = new Server({ port: 8000 });
+  await server.listen();
+  const proxyUrl = `http://localhost:8000`;
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: [`--proxy-server=${proxyUrl}`],
+  });
 
     const page = await browser.newPage();
     const cookiesPath = "./cookies/Instagramcookies.json";
@@ -188,10 +234,50 @@ async function interactWithPosts(page: any) {
             console.log(`Waiting ${waitTime / 1000} seconds before moving to the next post...`);
             await delay(waitTime);
 
-            // Scroll to the next post
-            await page.evaluate(() => {
-                window.scrollBy(0, window.innerHeight);
-            });
+      // Follow user (add logic here)
+      try {
+        await resetDailyFollowCountIfNeeded();
+        const { count: currentFollowCount } = await getFollowLimitData();
+
+        if (currentFollowCount < DAILY_FOLLOW_LIMIT) {
+          const followButtonSelector = `${postSelector} button`; // This is a generic selector, needs refinement
+          const followButton = await page.$(followButtonSelector);
+
+          if (followButton) {
+            const buttonText = await followButton.evaluate(
+              (el: HTMLElement) => el.innerText
+            );
+
+            // Check if the button text indicates we can follow the user
+            if (buttonText === "Follow" || buttonText === "Follow Back") {
+              console.log(`Following user from post ${postIndex}...`);
+              await followButton.click();
+              console.log("User followed.");
+
+              // Increment follow count
+              await updateFollowLimitData({
+                count: currentFollowCount + 1,
+                timestamp: (await getFollowLimitData()).timestamp, //Keep the old timestamp
+              });
+            } else {
+              console.log(
+                `Already following user or button text is unexpected: ${buttonText}`
+              );
+            }
+          } else {
+            console.log(`Follow button not found for post ${postIndex}.`);
+          }
+        } else {
+          console.log(`Daily follow limit reached (${DAILY_FOLLOW_LIMIT}).`);
+        }
+      } catch (followError) {
+        console.error(`Error following user from post ${postIndex}:`, followError);
+      }
+
+      // Scroll to the next post
+      await page.evaluate(() => {
+        window.scrollBy(0, window.innerHeight);
+      });
 
             postIndex++;
         } catch (error) {
