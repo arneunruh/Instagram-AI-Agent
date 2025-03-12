@@ -60,8 +60,6 @@ export const getInstagramCommentSchema = (): InstagramCommentSchema => {
     };
 };
 
-
-
 // Define the interface for the Tweet document
 interface ITweet extends Document {
   tweetContent: string;

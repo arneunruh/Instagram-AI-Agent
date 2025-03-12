@@ -1,0 +1,113 @@
+{
+    "likePatterns": {
+      "general": [
+        "Posts with Maine Coons featuring long manes",
+        "Photos with Maine Coon kittens",
+        "Posts containing words: fluffy, majestic, Maine Coon",
+        "Images of red tabby Maine Coons",
+        "Popular posts with high engagement",
+        "Posts with hashtags: #MaineCoonLovers, #MaineCoonCat",
+        "Images showing Maine Coons with other pets",
+        "High-quality, professional-looking photos",
+        "Posts from accounts that actively comment"
+      ],
+      "timeBasedStrategy": {
+        "morning": {
+          "timeFrame": "7-9 AM",
+          "count": "10-15",
+          "focus": "new posts"
+        },
+        "noon": {
+          "timeFrame": "12-2 PM",
+          "count": "20-25",
+          "focus": "mixed new and popular"
+        },
+        "evening": {
+          "timeFrame": "6-10 PM",
+          "count": "30-40",
+          "focus": "interactive accounts"
+        },
+        "peakDays": ["Monday", "Thursday"],
+        "weeklyDistribution": {
+          "Monday": 30,
+          "Tuesday": 20,
+          "Wednesday": 25,
+          "Thursday": 30,
+          "Friday": 25,
+          "Saturday": 15,
+          "Sunday": 20
+        }
+      },
+      "hashtagStrategy": {
+        "postsPerHashtag": "5-10",
+        "primaryHashtags": [
+          "#MaineCoon", 
+          "#MaineCoonCat", 
+          "#MaineCoonKitten", 
+          "#MaineCoonOfInstagram"
+        ]
+      },
+      "influencerStrategy": {
+        "followCount": "20-30",
+        "responseTime": "within 1 hour of publication"
+      },
+      "contentPreferences": {
+        "priority": ["videos", "multiple cats", "high-quality photos"]
+      }
+    },
+    "timeZoneEngagement": {
+      "northAmerica": {
+        "peak": ["6-8 PM EST", "12-2 PM PST"]
+      },
+      "europe": {
+        "peak": ["6-9 PM CET", "12-2 PM GMT"]
+      },
+      "asiaPacific": {
+        "peak": ["7-9 PM JST", "8-10 PM AEST"]
+      },
+      "global": {
+        "peak": "Weekend mornings (local time)"
+      }
+    },
+    "frequencyGuidelines": {
+      "comments": "15-20 per day across time zones",
+      "likes": "50-75 per day, concentrated during peak hours",
+      "followUnfollow": "Max 30 combined actions per day",
+      "optimalPostingTimesUTC": ["6 AM", "10 AM", "2 PM", "8 PM"]
+    },
+    "engagementRatios": {
+      "followToLikeRatio": "1:3-4",
+      "commentToLikeRatio": "1:5",
+      "activityDistribution": {
+        "likes": "70%",
+        "comments": "20%",
+        "follows": "10%"
+      },
+      "responseRate": "100% within 12 hours"
+    },
+    "seasonalContent": {
+      "specialDays": {
+        "internationalCatDay": {
+          "date": "August 8",
+          "activityIncrease": "50%"
+        },
+        "nationalMaineCoonDay": {
+          "date": "September 23",
+          "activityIncrease": "100%"
+        }
+      },
+      "seasonal": {
+        "christmas": "Maine Coons with festive decorations",
+        "halloween": "Costumed Maine Coons",
+        "spring": "Outdoor Maine Coon content",
+        "winter": "Cozy indoor Maine Coon images"
+      },
+      "trendingTopics": [
+        "#CatHealth campaigns",
+        "New Maine Coon color variants",
+        "Famous Maine Coon social media celebrities",
+        "Cat show winners and events",
+        "Viral cat videos featuring Maine Coons"
+      ]
+    }
+  }
